@@ -17,12 +17,10 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Object user = req.getSession().getAttribute("user");
-        if (user == null) {
-            RequestDispatcher dispatcher = req.getRequestDispatcher("/user/hello.jsp");
-            dispatcher.include(req, resp);
+        if (user != null) {
+            resp.sendRedirect("/user/hello.jsp");
         } else {
-            RequestDispatcher dispatcher = req.getRequestDispatcher("/login.jsp");
-            dispatcher.include(req, resp);
+            resp.sendRedirect("/login.jsp");
         }
     }
 
@@ -31,26 +29,11 @@ public class LoginServlet extends HttpServlet {
         String login = req.getParameter("login");
         String password = req.getParameter("password");
 
-        if (login == null || login.isBlank() || password == null || password.isBlank()) {
+        if (!Users.getInstance().getUsers().contains(login) || password == null || password.trim().isEmpty()) {
             req.getRequestDispatcher("/login.jsp").forward(req, resp);
-            return;
-        }
-
-        Users users= Users.getInstance();
-        List<String> userList = users.getUsers();
-        boolean isValidUser = false;
-        for (String user : userList) {
-            if (user.equals(login))
-                isValidUser=true;
-        }
-
-        if (isValidUser) {
-            HttpSession session = req.getSession();
-            session.setAttribute("user", login);
-            req.getRequestDispatcher("index.jsp").forward(req, resp);
-            resp.sendRedirect(req.getContextPath() + "/user/hello.jsp");
         } else {
-            req.getRequestDispatcher("/login.jsp").forward(req, resp);
+            req.getSession().setAttribute("user", login);
+            resp.sendRedirect("/user/hello.jsp");
         }
     }
 }

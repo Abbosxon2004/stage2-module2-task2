@@ -12,25 +12,23 @@ public class AuthFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        Filter.super.init(filterConfig);
     }
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
             throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest) servletRequest;
-        HttpServletResponse response = (HttpServletResponse) servletResponse;
-        HttpSession session = request.getSession();
 
-        if (session.getAttribute("user") == null) {
-            response.sendRedirect(request.getContextPath() + "/login.jsp");
-            return;
+        HttpServletRequest servletRequest = (HttpServletRequest) request;
+
+        Object user = servletRequest.getSession().getAttribute("user");
+        if (user == null) {
+            ((HttpServletResponse) response).sendRedirect("/login.jsp");
+        } else {
+            filterChain.doFilter(request, response);
         }
-        filterChain.doFilter(request, response);
     }
 
     @Override
     public void destroy() {
-        Filter.super.destroy();
     }
 }
