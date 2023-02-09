@@ -1,5 +1,7 @@
 package com.example.servlet;
 
+import com.example.Users;
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -8,15 +10,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.List;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
-    private static final String USERNAME1 = "user";
-    private static final String USERNAME2 = "admin";
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Object user = req.getSession().getAttribute("user");
-        if (user != null) {
+        if (user == null) {
             RequestDispatcher dispatcher = req.getRequestDispatcher("/user/hello.jsp");
             dispatcher.include(req, resp);
         } else {
@@ -35,7 +36,13 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        boolean isValidUser = login.equals(USERNAME1)||login.equals(USERNAME2);
+        Users users= Users.getInstance();
+        List<String> userList = users.getUsers();
+        boolean isValidUser = false;
+        for (String user : userList) {
+            if (user.equals(login))
+                isValidUser=true;
+        }
 
         if (isValidUser) {
             HttpSession session = req.getSession();
